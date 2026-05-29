@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  # PostgreSQL stores the persistent arbitrage history and virtual wallet state.
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: crypto_analytics
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  # Redis is used for cache and fast state sharing between services.
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+
+  # The backend hosts the engine, API, and SignalR hub.
+  backend:
+    build: 
+      context: ../backend/CryptoArbitrage.Api
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+      - redis
+    environment:
+      - ConnectionStrings__Postgres=Host=db;Port=5432;Database=crypto_analytics;Username=user;Password=password;
+      - ConnectionStrings__Redis=redis:6379
+    restart: unless-stopped
+
+  # The frontend serves the Angular dashboard to the browser.
+  frontend:
+    build:
+      context: ../frontend/dashboard
+      dockerfile: Dockerfile
+    ports:
+      - "80:80" # Открываем наружу только 80 порт
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  pgdata:

@@ -1,0 +1,104 @@
+<!-- This template shows the live arbitrage dashboard, metrics, chart, and settings panel. -->
+<div class="dashboard-container">
+  <header class="header">
+    <h1>HFT Arbitrage Scanner</h1>
+    <div class="metrics">
+      <div class="metric-box">
+        <span class="label">Live Spreads</span>
+        <span class="value">{{ events.length }}</span>
+      </div>
+      <div class="metric-box">
+        <span class="label">Session Profit (Est)</span>
+        <span class="value profit" [class.loss]="totalProfitUsdt < 0">
+          {{ totalProfitUsdt | number:'1.2-4' }} USDT
+        </span>
+      </div>
+      <div class="metric-box wallet">
+        <span class="label">Paper Wallet (USDT)</span>
+        <span class="value profit">${{ walletBalance | number:'1.2-2' }}</span>
+      </div>
+      <div class="metric-box status">
+        <span class="dot" [class.pulse]="isConnected" [class.offline]="!isConnected"></span>
+        <span class="label" [class.text-offline]="!isConnected">
+          {{ isConnected ? 'Engine Online' : 'Engine Offline' }}
+        </span>
+      </div>
+      <button class="settings-toggle-btn" (click)="toggleSettings()">⚙ Control Panel</button>
+    </div>
+  </header>
+
+  <div class="settings-overlay" *ngIf="showSettings">
+    <div class="settings-modal">
+      <h2>HFT Engine Core Settings</h2>
+      <div class="form-group">
+        <label>Trading Volume (USDT)</label>
+        <input type="number" [(ngModel)]="settings.tradeAmountUsdt" step="10">
+      </div>
+      <div class="form-group">
+        <label>Min Net Profit (USDT)</label>
+        <input type="number" [(ngModel)]="settings.minNetProfitUsdt" step="0.05">
+      </div>
+      <div class="form-group">
+        <label>Min Net Profit (%)</label>
+        <input type="number" [(ngModel)]="settings.minNetProfitPercent" step="0.01">
+      </div>
+      <div class="form-group">
+        <label>Global Fallback Taker Fee Rate</label>
+        <input type="number" [(ngModel)]="settings.takerFeeRate" step="0.0001">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-save" (click)="saveSettings()">Apply Changes</button>
+        <button class="btn-cancel" (click)="toggleSettings()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-wrapper">
+    <canvas #spreadChart></canvas>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Pair</th>
+          <th>Route</th>
+          <th>Volume</th>
+          <th>Buy Price</th>
+          <th>Sell Price</th>
+          <th>Net Profit (USDT)</th>
+          <th>Spread (%)</th>
+          <th>Action / Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let ev of events">
+          <td class="time">{{ ev.createdAtUtc | date:'HH:mm:ss.SSS' }}</td>
+          <td class="symbol">{{ ev.symbol }}</td>
+          <td>
+            <span class="exchange buy">{{ ev.buyExchange }}</span>
+            <span class="arrow">→</span>
+            <span class="exchange sell">{{ ev.sellExchange }}</span>
+          </td>
+          <td>{{ ev.tradeVolumeUsdt | number:'1.2-2' }}</td>
+          <td class="price">{{ ev.avgBuyPrice | number:'1.2-8' }}</td>
+          <td class="price">{{ ev.avgSellPrice | number:'1.2-8' }}</td>
+          <td class="profit" [class.loss]="ev.netProfit < 0">{{ ev.netProfit | number:'1.2-4' }}</td>
+          <td class="profit" [class.loss]="ev.netProfitPercent < 0">{{ ev.netProfitPercent | number:'1.2-3' }}%</td>
+          <td>
+            <span class="status-badge" 
+                  [class.success]="ev.executionStatus === 'Success'"
+                  [class.pending]="ev.executionStatus === 'Pending'"
+                  [class.failed]="ev.executionStatus?.includes('Failed')">
+              {{ ev.executionStatus }}
+            </span>
+          </td>
+        </tr>
+        <tr *ngIf="events.length === 0">
+          <td colspan="9" class="empty-state">No spreads detected. Waiting for engine data...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

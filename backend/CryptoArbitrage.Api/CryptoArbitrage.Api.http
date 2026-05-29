@@ -1,0 +1,6 @@
+@CryptoArbitrage.Api_HostAddress = http://localhost:5124
+
+GET {{CryptoArbitrage.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
