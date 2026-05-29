@@ -6,7 +6,7 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)
 
-A high-frequency trading (HFT) cryptocurrency arbitrage scanner with a built-in event-driven paper trading execution engine. Developed as a Bachelor's Degree thesis project for the **121 Software Engineering** program (National Aviation University).
+A high-frequency trading (HFT) cryptocurrency arbitrage scanner with a built-in event-driven paper trading execution engine. Developed as a Bachelor's Degree thesis project for the **121 Software Engineering** program (State University "Kyiv Aviation Institute").
 
 ## 🚀 Architecture & Features
 
